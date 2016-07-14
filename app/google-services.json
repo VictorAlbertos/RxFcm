@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "964177545857",
+    "firebase_url": "https://rxfcm-236a4.firebaseio.com",
+    "project_id": "rxfcm-236a4",
+    "storage_bucket": "rxfcm-236a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964177545857:android:ff1f4ddecc453e17",
+        "android_client_info": {
+          "package_name": "victoralbertos.io.rxfcm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "964177545857-5l1ll120vutv38lt791h7leg6di90n97.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz4ETGDwUue6u5a0QqVfK1OeS-y-cm1NU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
