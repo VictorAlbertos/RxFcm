@@ -1,4 +1,4 @@
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RxFcm-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/3912
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RxFcm-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/3912)
 
 # RxFcm
 RxJava extension for Firebase Cloud Messaging which acts as an architectural approach to easily satisfy the requirements of an android app when dealing with push notifications.
