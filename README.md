@@ -207,4 +207,4 @@ You can easily [send http post request](https://firebase.google.com/docs/cloud-m
 * [Mockery](https://github.com/VictorAlbertos/Mockery): Android and Java library for mocking and testing networking layers with built-in support for Retrofit.
 * [RxCache](https://github.com/VictorAlbertos/RxCache): Reactive caching library for Android and Java.
 * [RxActivityResult](https://github.com/VictorAlbertos/RxActivityResult): A reactive-tiny-badass-vindictive library to break with the OnActivityResult implementation as it breaks the observables chain. 
-* [RxSocialConnect](https://github.com/FuckBoilerplate/RxSocialConnect-Android): OAuth RxJava extension for Android.
+* [RxSocialConnect](https://github.com/VictorAlbertos/RxSocialConnect-Android): OAuth RxJava extension for Android.
