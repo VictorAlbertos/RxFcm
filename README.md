@@ -167,7 +167,7 @@ public class RefreshTokenReceiver implements FcmRefreshTokenReceiver {
 ```
  
 ### Retrieving current token 
-If at some point you need to retrieve the fcm token device -e.g for updating the value on your server, you could do it easily calling [RxFcm.Notifications.currentToken](https://github.com/VictorAlbertos/RxFcm/blob/master/rx_fcm/src/main/java/rx_fcm/internal/RxFcm.java#L114):
+If at some point you need to retrieve the fcm token device -e.g for updating the value on your server, you could do it easily calling [RxFcm.Notifications.currentToken](https://github.com/VictorAlbertos/RxFcm/blob/master/rx_fcm/src/main/java/rx_fcm/internal/RxFcm.java#L89):
 
 ```java
     RxFcm.Notifications.currentToken().subscribe(token -> {}, error -> {});
@@ -175,7 +175,7 @@ If at some point you need to retrieve the fcm token device -e.g for updating the
 
 
 ### Register RxFcm classes
-Once you have implemented `FcmReceiverData` and `FcmReceiverUIBackground` interfaces is time to register them in your Android `Application` class calling [RxFcm.Notifications.init](https://github.com/VictorAlbertos/RxFcm/blob/master/rx_fcm/src/main/java/rx_fcm/internal/RxFcm.java#L79). Plus, register `RefreshTokenReceiver` implementation too at this point. 
+Once you have implemented `FcmReceiverData` and `FcmReceiverUIBackground` interfaces is time to register them in your Android `Application` class calling [RxFcm.Notifications.init](https://github.com/VictorAlbertos/RxFcm/blob/master/rx_fcm/src/main/java/rx_fcm/internal/RxFcm.java#L76). Plus, register `RefreshTokenReceiver` implementation too at this point. 
    
 ```java
 public class RxSampleApp extends Application {
