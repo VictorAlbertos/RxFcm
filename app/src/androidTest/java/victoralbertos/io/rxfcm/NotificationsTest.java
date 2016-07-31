@@ -82,6 +82,27 @@ public class NotificationsTest {
         assertNotNull(AppFcmReceiverUIBackground.getBackgroundMessage());
     }
 
+    @Test public void _4_Mock_And_Receive_Notification_On_Foreground() {
+        onView(withId(R.id.bt_no_nested_fragment)).perform(click());
+        onView(withId(R.id.et_title)).perform(click(), replaceText(""), closeSoftKeyboard());
+        //Send issue
+        new FcmServerService().mockFcmNotificationRequestingIssue().subscribe();
+
+        waitTime(1000);
+
+        onView(withId(R.id.rv_notifications)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+    }
+
+    @Test public void _5_Mock_And_Receive_Notification_On_Background() {
+        AppFcmReceiverUIBackground.initTestBackgroundMessage();
+        mActivityRule.getActivity().finish();
+
+        waitTime(1500);
+        new FcmServerService().mockFcmNotificationRequestingIssue().subscribe();
+        waitTime(1000);
+        assertNotNull(AppFcmReceiverUIBackground.getBackgroundMessage());
+    }
+
     private  void waitTime(long time) {
         try {Thread.sleep(time);
         } catch (InterruptedException e) { e.printStackTrace();}

@@ -49,24 +49,27 @@ dependencies {
 
     compile "com.squareup.retrofit2:adapter-rxjava:2.1.0"
     compile "com.squareup.retrofit2:converter-gson:2.1.0"
-    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'io.reactivex:rxandroid:1.2.1'
 
-    compile 'com.android.support:design:24.0.0'
-    compile 'com.android.support:support-annotations:24.0.0'
+    compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:support-annotations:24.1.1'
 
-    androidTestCompile ("com.android.support.test:runner:0.4.1") {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile ("com.android.support.test:rules:0.4.1") {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile ("com.android.support.test.espresso:espresso-contrib:2.2.1") {
+    androidTestCompile "com.android.support.test:runner:0.5"
+    androidTestCompile "com.android.support.test:rules:0.5"
+    androidTestCompile("com.android.support.test.espresso:espresso-contrib:2.2.2") {
         exclude module: 'support-annotations'
         exclude module: 'support-v4'
         exclude module: 'support-v13'
         exclude module: 'recyclerview-v7'
+        exclude module: 'appcompat-v7'
+        exclude module: 'design'
     }
+
+}
+
+configurations.all {
+    resolutionStrategy.force "com.android.support:support-annotations:24.1.1"
 }
 
 apply plugin: 'com.google.gms.google-services'

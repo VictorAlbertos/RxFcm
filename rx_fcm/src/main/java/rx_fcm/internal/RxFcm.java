@@ -40,7 +40,7 @@ import victoralbertos.io.rx_fcm.R;
 public enum RxFcm {
     Notifications;
 
-    private final static String RX_FCM_KEY_TARGET = "rx_fcm_key_target"; //VisibleForTesting
+    private final static String RX_FCM_KEY_TARGET = "rx_fcm_key_target";
     private ActivitiesLifecycleCallbacks activitiesLifecycle;
     private GetFcmServerToken getFcmServerToken;
     private Persistence persistence;
