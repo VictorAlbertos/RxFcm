@@ -15,8 +15,8 @@ Add RxFcm dependency and Google Services plugin to project level build.gradle.
 apply plugin: 'com.google.gms.google-services'
 
 dependencies {
-    compile 'com.github.VictorAlbertos:RxFcm:0.0.2'
-    compile 'io.reactivex:rxjava:1.1.7'
+    compile 'com.github.VictorAlbertos:RxFcm:0.0.3'
+    compile 'io.reactivex:rxjava:1.1.8'
 }
 ```
 
@@ -191,6 +191,19 @@ public class RxSampleApp extends Application {
     }
 
 }
+```
+
+
+### Mocking support.
+To mock a call to RxFcm with a bundle which will be process as a real Fcm notification use:
+
+```java
+    RxGcmMock.Notifications.newNotification(bundle); 
+```
+ 
+To mock a call to RxFcm requesting it to update the token device:
+```java
+    RxGcmMock.Notifications.updateToken(); 
 ```
 
 ## Examples

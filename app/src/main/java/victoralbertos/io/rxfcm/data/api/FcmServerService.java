@@ -1,5 +1,6 @@
 package victoralbertos.io.rxfcm.data.api;
 
+import android.os.Bundle;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -7,6 +8,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx_fcm.internal.RxFcm;
+import rx_fcm.internal.RxFcmMock;
 
 /**
  * Created by victor on 08/02/16.
@@ -24,6 +26,17 @@ public class FcmServerService {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build().create(ApiFcmServer.class);
+    }
+
+    public Observable<Boolean> mockFcmNotificationRequestingIssue() {
+        return Observable.defer(() -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(FcmServerService.TITLE, "mock title issue");
+            bundle.putString(FcmServerService.BODY, "mock body issue");
+            bundle.putString("rx_fcm_key_target", FcmServerService.TARGET_ISSUE_GCM);
+            RxFcmMock.Notifications.newNotification(bundle);
+            return Observable.just(true);
+        });
     }
 
     public Observable<Boolean> sendFcmNotificationRequestingIssue(String title, String body) {
