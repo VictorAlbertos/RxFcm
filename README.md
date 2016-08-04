@@ -16,6 +16,7 @@ apply plugin: 'com.google.gms.google-services'
 
 dependencies {
     compile 'com.github.VictorAlbertos:RxFcm:0.0.3'
+    compile 'com.google.firebase:firebase-core:9.2.1'
     compile 'io.reactivex:rxjava:1.1.8'
 }
 ```
