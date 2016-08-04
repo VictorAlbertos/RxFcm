@@ -66,9 +66,6 @@ dependencies {
         exclude module: 'appcompat-v7'
         exclude module: 'design'
     }
-
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'junit:junit:4.12'
 }
 
 configurations.all {
