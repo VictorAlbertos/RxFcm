@@ -90,6 +90,8 @@ To RxFcm be able to return a not null `string` value when calling `target()` met
 
 If rx_fcm_key_target is not added to the json payload, you will get a null value when calling the `target()` method. So, you can ignore this, but you would be missing the benefits of the targeting strategy.
 
+Alternatively, if you don't have access to the server code, you can supply a custom key when you register the [RxFcm classses](#register). 
+
 ### FcmReceiverUIBackground and FcmReceiverUIForeground
 Both of them will be called only after `FcmReceiverData` `observable` has reached `onCompleted()` state. This way it’s safe to assume that any operation related to updating the data model has been successfully achieved, and now it’s time to reflect these updates in the presentation layer. 
 
@@ -176,7 +178,7 @@ If at some point you need to retrieve the fcm token device -e.g for updating the
     RxFcm.Notifications.currentToken().subscribe(token -> {}, error -> {});
 ```
 
-
+<a name="register"></a>
 ### Register RxFcm classes
 Once you have implemented `FcmReceiverData` and `FcmReceiverUIBackground` interfaces is time to register them in your Android `Application` class calling [RxFcm.Notifications.init](https://github.com/VictorAlbertos/RxFcm/blob/master/rx_fcm/src/main/java/rx_fcm/internal/RxFcm.java#L76). Plus, register `RefreshTokenReceiver` implementation too at this point. 
    
@@ -186,7 +188,10 @@ public class RxSampleApp extends Application {
     @Override public void onCreate() {
         super.onCreate();
 
-        RxFcm.Notifications.init(this, AppFcmReceiverData.class, AppFcmReceiverUIBackground.class);   
+        RxFcm.Notifications.init(this, AppFcmReceiverData.class, AppFcmReceiverUIBackground.class); 
+        
+        //If you need to supply a custom key for the json payload use this overloaded version.
+        RxFcm.Notifications.init(this, AppFcmReceiverData.class, AppFcmReceiverUIBackground.class, "rx_fcm_custom_key");  
                 
         RxFcm.Notifications.onRefreshToken(RefreshTokenReceiver.class);
     }
