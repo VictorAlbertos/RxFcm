@@ -19,6 +19,9 @@ package rx_fcm.internal;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.text.TextUtils;
 import android.util.Log;
 import rx.Observable;
 import rx.Scheduler;
@@ -40,7 +43,8 @@ import victoralbertos.io.rx_fcm.R;
 public enum RxFcm {
     Notifications;
 
-    private final static String RX_FCM_KEY_TARGET = "rx_fcm_key_target";
+    private final static String DEFAULT_RX_FCM_KEY_TARGET = "rx_fcm_key_target";
+    private String rxFcmKeyTarget;
     private ActivitiesLifecycleCallbacks activitiesLifecycle;
     private GetFcmServerToken getFcmServerToken;
     private Persistence persistence;
@@ -67,6 +71,18 @@ public enum RxFcm {
         this.mainThreadScheduler = AndroidSchedulers.mainThread();
     }
 
+    /**
+     *
+     * @param application The Android Application instance.
+     * @param gcmReceiverDataClass A class which implements {@link FcmReceiverData}
+     * @param gcmReceiverUIBackgroundClass A class which implements {@link FcmReceiverUIBackground}
+     */
+    public <T extends FcmReceiverData, U extends FcmReceiverUIBackground> void init(final Application application,
+                                                                                    final Class<T> gcmReceiverDataClass,
+                                                                                    final Class<U> gcmReceiverUIBackgroundClass) {
+        init(application, gcmReceiverDataClass, gcmReceiverUIBackgroundClass, null);
+    }
+
   /**
    *
    * @param application The Android Application instance.
@@ -74,13 +90,15 @@ public enum RxFcm {
    * @param gcmReceiverUIBackgroundClass A class which implements {@link FcmReceiverUIBackground}
    */
     public <T extends FcmReceiverData, U extends FcmReceiverUIBackground> void init(final Application application,
-        final Class<T> gcmReceiverDataClass,
-        final Class<U> gcmReceiverUIBackgroundClass) {
+                                                                                    final Class<T> gcmReceiverDataClass,
+                                                                                    final Class<U> gcmReceiverUIBackgroundClass,
+                                                                                    @Nullable final String rxFcmKeyTarget) {
         init(application);
 
         Context context = activitiesLifecycle.getApplication();
         persistence.saveClassNameFcmReceiverAndFcmReceiverUIBackground(gcmReceiverDataClass.getName(),
             gcmReceiverUIBackgroundClass.getName(), context);
+        this.rxFcmKeyTarget = TextUtils.isEmpty(rxFcmKeyTarget) ? DEFAULT_RX_FCM_KEY_TARGET : rxFcmKeyTarget;
     }
 
     /**
@@ -149,7 +167,7 @@ public enum RxFcm {
 
     void onNotificationReceived(String from, Bundle payload) {
         Application application = activitiesLifecycle.getApplication();
-        String target = payload != null ? payload.getString(RX_FCM_KEY_TARGET, null) : "";
+        String target = payload != null ? payload.getString(rxFcmKeyTarget, null) : "";
 
         Observable<Message> oMessage = Observable.just(new Message(from, payload, target, application));
 
