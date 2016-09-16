@@ -1,6 +1,6 @@
 package victoralbertos.io.rxfcm;
 
-import rx.Observable;
+import io.reactivex.Observable;
 import rx_fcm.FcmRefreshTokenReceiver;
 import rx_fcm.TokenUpdate;
 

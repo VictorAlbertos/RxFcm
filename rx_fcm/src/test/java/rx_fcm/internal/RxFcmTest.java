@@ -18,12 +18,12 @@ package rx_fcm.internal;
 
 import android.app.Application;
 import android.os.Bundle;
+import io.reactivex.observers.TestObserver;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import rx.observers.TestSubscriber;
 import rx_fcm.Message;
 import rx_fcm.TokenUpdate;
 
@@ -50,50 +50,50 @@ public class RxFcmTest {
     @Test public void When_Call_Current_Token_Get_Token() {
         when(persistenceMock.getToken(applicationMock)).thenReturn(MOCK_TOKEN);
 
-        TestSubscriber<String> subscriberMock = new TestSubscriber<>();
-        RxFcm.Notifications.currentToken().subscribe(subscriberMock);
-        subscriberMock.awaitTerminalEvent();
+        TestObserver<String> observer = new TestObserver<>();
+        RxFcm.Notifications.currentToken().subscribe(observer);
+        observer.awaitTerminalEvent();
 
-        subscriberMock.assertValue(MOCK_TOKEN);
-        subscriberMock.assertNoErrors();
+        observer.assertValue(MOCK_TOKEN);
+        observer.assertNoErrors();
     }
 
     @Test public void When_Call_On_Token_Refresh_Emit_Properly_Item() throws Exception {
-        TestSubscriber<TokenUpdate> subscriberMock = FcmRefreshTokenReceiverMock.initSubscriber();
+        TestObserver<TokenUpdate> observer = FcmRefreshTokenReceiverMock.initSubscriber();
         when(persistenceMock.getClassNameFcmRefreshTokenReceiver(applicationMock)).thenReturn(FcmRefreshTokenReceiverMock.class.getName());
 
         when(getFcmServerTokenMock.retrieve(applicationMock)).thenReturn(MOCK_TOKEN);
         RxFcm.Notifications.onTokenRefreshed();
-        subscriberMock.awaitTerminalEvent();
-        subscriberMock.assertNoErrors();
-        TokenUpdate token1 = subscriberMock.getOnNextEvents().get(0);
+        observer.awaitTerminalEvent();
+        observer.assertNoErrors();
+        TokenUpdate token1 = observer.values().get(0);
         assertThat(token1.getToken(), is(MOCK_TOKEN));
 
-        subscriberMock = FcmRefreshTokenReceiverMock.initSubscriber();
+        observer = FcmRefreshTokenReceiverMock.initSubscriber();
         reset(getFcmServerTokenMock);
         String errorMessage = "GCM not available";
         when(getFcmServerTokenMock.retrieve(applicationMock)).thenThrow(new RuntimeException(errorMessage));        RxFcm.Notifications.onTokenRefreshed();
-        subscriberMock.awaitTerminalEvent();
-        subscriberMock.assertNoValues();
-        assertThat(subscriberMock.getOnErrorEvents().get(0).getMessage(), is(errorMessage));
+        observer.awaitTerminalEvent();
+        observer.assertNoValues();
+        assertThat(observer.errors().get(0).getMessage(), is(errorMessage));
 
-        subscriberMock = FcmRefreshTokenReceiverMock.initSubscriber();
+        observer = FcmRefreshTokenReceiverMock.initSubscriber();
         reset(getFcmServerTokenMock);
         when(getFcmServerTokenMock.retrieve(applicationMock)).thenReturn(MOCK_TOKEN + 1);
         RxFcm.Notifications.onTokenRefreshed();
-        subscriberMock.awaitTerminalEvent();
-        subscriberMock.assertNoErrors();
-        TokenUpdate token2 = subscriberMock.getOnNextEvents().get(0);
+        observer.awaitTerminalEvent();
+        observer.assertNoErrors();
+        TokenUpdate token2 = observer.values().get(0);
         assertThat(token2.getToken(), is(MOCK_TOKEN + 1));
 
         reset(getFcmServerTokenMock);
         when(persistenceMock.getClassNameFcmRefreshTokenReceiver(applicationMock)).thenReturn(null);
         try {
             RxFcm.Notifications.onTokenRefreshed();
-            subscriberMock.awaitTerminalEvent();
+            observer.awaitTerminalEvent();
         } catch (Exception ignore) {
-            assertThat(subscriberMock.getOnErrorEvents().size(), is(1));
-            subscriberMock.assertValueCount(2);
+            assertThat(observer.errors().size(), is(1));
+            observer.assertValueCount(2);
         }
     }
 

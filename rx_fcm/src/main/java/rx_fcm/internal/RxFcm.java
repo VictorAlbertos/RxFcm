@@ -20,19 +20,19 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Actions;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import rx_fcm.FcmReceiverData;
 import rx_fcm.FcmReceiverUIBackground;
 import rx_fcm.FcmRefreshTokenReceiver;
 import rx_fcm.Message;
 import rx_fcm.TokenUpdate;
 import victoralbertos.io.rx_fcm.R;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Ensures a single instance of RxFcm for the entire Application.
@@ -107,24 +107,24 @@ public enum RxFcm {
      * @return Current token associated with the device on FCM serve.
      */
     public Observable<String> currentToken() {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override public void call(Subscriber<? super String> subscriber) {
+        return Observable.create(new ObservableOnSubscribe<String>() {
+            @Override public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                 Context context = activitiesLifecycle.getApplication();
                 String token = persistence.getToken(context);
 
                 if (token != null) {
-                    subscriber.onNext(token);
+                    emitter.onNext(token);
                 } else {
                     try {
                         token = getFcmServerToken.retrieve(activitiesLifecycle.getApplication());
                         persistence.saveToken(token, context);
-                        subscriber.onNext(token);
+                        emitter.onNext(token);
                     } catch (Exception e) {
-                        subscriber.onError(e);
+                        emitter.onError(e);
                     }
                 }
 
-                subscriber.onCompleted();
+                emitter.onComplete();
             }
         });
     }
@@ -145,9 +145,9 @@ public enum RxFcm {
             oExceptionGcmServer = null;
         } catch (final Exception exception) {
             newToken = null;
-            oExceptionGcmServer = Observable.create(new Observable.OnSubscribe<Object>() {
-                @Override public void call(Subscriber<? super Object> subscriber) {
-                    subscriber.onError(new RuntimeException(exception.getMessage()));
+            oExceptionGcmServer = Observable.create(new ObservableOnSubscribe() {
+                @Override public void subscribe(ObservableEmitter emitter) throws Exception {
+                    emitter.onError(new RuntimeException(exception.getMessage()));
                 }
             });
         }
@@ -177,8 +177,8 @@ public enum RxFcm {
         FcmReceiverData fcmReceiverData = getInstanceClassByName(className);
 
         fcmReceiverData.onNotification(oMessage)
-                .doOnNext(new Action1<Message>() {
-                    @Override public void call(Message message) {
+                .doOnNext(new Consumer<Message>() {
+                    @Override public void accept(Message message) throws Exception {
                         if (activitiesLifecycle.isAppOnBackground()) {
                             notifyGcmReceiverBackgroundMessage(message);
                         } else {
@@ -186,9 +186,14 @@ public enum RxFcm {
                         }
                     }
                 })
-                .subscribe(Actions.empty(), new Action1<Throwable>() {
-                    @Override public void call(Throwable throwable) {
-                        String message = "Error thrown from GcmReceiverData subscription. Cause exception: " + throwable.getMessage();
+                .subscribe(new Consumer<Message>() {
+                    @Override public void accept(Message message) throws Exception {
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override public void accept(Throwable throwable) throws Exception {
+                        String message =
+                            "Error thrown from GcmReceiverData subscription. Cause exception: "
+                                + throwable.getMessage();
                         Log.e("RxGcm", message);
                     }
                 });

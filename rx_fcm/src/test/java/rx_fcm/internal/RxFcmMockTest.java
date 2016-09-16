@@ -18,12 +18,12 @@ package rx_fcm.internal;
 
 import android.app.Application;
 import android.os.Bundle;
+import io.reactivex.observers.TestObserver;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import rx.observers.TestSubscriber;
 import rx_fcm.Message;
 import rx_fcm.TokenUpdate;
 
@@ -48,15 +48,15 @@ public final class RxFcmMockTest {
 
 
   @Test public void When_Call_Mock_Update_Token_Then_RxFcm_Emit_Properly_Item() throws Exception {
-    TestSubscriber<TokenUpdate> subscriberMock = FcmRefreshTokenReceiverMock.initSubscriber();
+    TestObserver<TokenUpdate> observer = FcmRefreshTokenReceiverMock.initSubscriber();
     when(persistenceMock.getClassNameFcmRefreshTokenReceiver(applicationMock))
         .thenReturn(FcmRefreshTokenReceiverMock.class.getName());
 
     when(getFcmServerTokenMock.retrieve(applicationMock)).thenReturn(MOCK_TOKEN);
     RxFcmMock.Notifications.updateToken();
-    subscriberMock.awaitTerminalEvent();
-    subscriberMock.assertNoErrors();
-    TokenUpdate token1 = subscriberMock.getOnNextEvents().get(0);
+    observer.awaitTerminalEvent();
+    observer.assertNoErrors();
+    TokenUpdate token1 = observer.values().get(0);
     assertThat(token1.getToken(), is(MOCK_TOKEN));
   }
 

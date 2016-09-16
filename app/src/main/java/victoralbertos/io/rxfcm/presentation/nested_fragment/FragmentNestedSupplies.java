@@ -2,8 +2,7 @@ package victoralbertos.io.rxfcm.presentation.nested_fragment;
 
 import android.os.Bundle;
 import android.view.View;
-
-import rx.Observable;
+import io.reactivex.Observable;
 import rx_fcm.Message;
 import victoralbertos.io.rxfcm.R;
 import victoralbertos.io.rxfcm.data.api.FcmServerService;

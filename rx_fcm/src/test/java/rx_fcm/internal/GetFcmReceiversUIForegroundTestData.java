@@ -19,16 +19,13 @@ package rx_fcm.internal;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import rx.Observable;
 import rx_fcm.FcmReceiverUIForeground;
 import rx_fcm.Message;
 

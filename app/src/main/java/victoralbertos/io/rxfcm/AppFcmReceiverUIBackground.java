@@ -10,8 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-
-import rx.Observable;
+import io.reactivex.Observable;
 import rx_fcm.FcmReceiverUIBackground;
 import rx_fcm.Message;
 import victoralbertos.io.rxfcm.data.api.FcmServerService;

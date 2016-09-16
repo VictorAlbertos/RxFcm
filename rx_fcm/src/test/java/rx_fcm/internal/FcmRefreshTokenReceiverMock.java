@@ -16,19 +16,19 @@
 
 package rx_fcm.internal;
 
-import rx.Observable;
-import rx.observers.TestSubscriber;
+import io.reactivex.Observable;
+import io.reactivex.observers.TestObserver;
 import rx_fcm.FcmRefreshTokenReceiver;
 import rx_fcm.TokenUpdate;
 
 public class FcmRefreshTokenReceiverMock implements FcmRefreshTokenReceiver {
-    static TestSubscriber<TokenUpdate> subscriberMock;
+    static TestObserver<TokenUpdate> observerMock;
 
-    public static TestSubscriber<TokenUpdate> initSubscriber() {
-        return subscriberMock = new TestSubscriber();
+    public static TestObserver<TokenUpdate> initSubscriber() {
+        return observerMock = new TestObserver();
     }
 
     @Override public void onTokenReceive(Observable<TokenUpdate> oTokenUpdate) {
-        oTokenUpdate.subscribe(subscriberMock);
+        oTokenUpdate.subscribe(observerMock);
     }
 }

@@ -16,11 +16,10 @@
 
 package rx_fcm.internal;
 
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.List;
-
-import rx.Observable;
-import rx.functions.Action1;
 import rx_fcm.FcmReceiverUIBackground;
 import rx_fcm.Message;
 
@@ -35,8 +34,8 @@ public class FcmReceiverMockUIBackground implements FcmReceiverUIBackground {
     @Override public void onNotification(Observable<Message> oMessage) {
         onNotificationStartTimeStamp = System.currentTimeMillis();
 
-        oMessage.subscribe(new Action1<Message>() {
-            @Override public void call(Message message) {
+        oMessage.subscribe(new Consumer<Message>() {
+            @Override public void accept(Message message) throws Exception {
                 messages.add(message);
             }
         });

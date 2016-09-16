@@ -16,11 +16,10 @@
 
 package rx_fcm.internal;
 
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.List;
-
-import rx.Observable;
-import rx.functions.Action1;
 import rx_fcm.FcmReceiverData;
 import rx_fcm.Message;
 
@@ -33,8 +32,8 @@ public class FcmReceiverDataMock implements FcmReceiverData {
     }
 
     @Override public Observable<Message> onNotification(Observable<Message> oMessage) {
-        return oMessage.doOnNext(new Action1<Message>() {
-            @Override public void call(Message foregroundMessage) {
+        return oMessage.doOnNext(new Consumer<Message>() {
+            @Override public void accept(Message foregroundMessage) throws Exception {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {}

@@ -23,9 +23,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 class ActivitiesLifecycleCallbacks {
-    private final Application application;
-    private Activity liveActivityOrNull;
-    private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
+    final Application application;
+    volatile Activity liveActivityOrNull;
+    Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
 
     public ActivitiesLifecycleCallbacks(Application application) {
         this.application = application;

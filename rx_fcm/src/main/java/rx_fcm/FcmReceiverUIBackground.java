@@ -16,7 +16,7 @@
 
 package rx_fcm;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * The class which implements this interface will receive the push notifications when the application is onBackground state

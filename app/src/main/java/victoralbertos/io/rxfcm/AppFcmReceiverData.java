@@ -1,8 +1,7 @@
 package victoralbertos.io.rxfcm;
 
 import android.os.Bundle;
-
-import rx.Observable;
+import io.reactivex.Observable;
 import rx_fcm.FcmReceiverData;
 import rx_fcm.Message;
 import victoralbertos.io.rxfcm.data.Cache;

@@ -16,7 +16,7 @@
 
 package rx_fcm;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * The class which implements this interface will receive updates when token is refreshed.

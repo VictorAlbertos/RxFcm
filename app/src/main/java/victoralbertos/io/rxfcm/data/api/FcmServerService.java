@@ -1,12 +1,12 @@
 package victoralbertos.io.rxfcm.data.api;
 
 import android.os.Bundle;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx_fcm.internal.RxFcm;
 import rx_fcm.internal.RxFcmMock;
 
@@ -23,7 +23,7 @@ public class FcmServerService {
     public FcmServerService() {
         this.apiFcmServer = new Retrofit.Builder()
                 .baseUrl(ApiFcmServer.URL_BASE)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build().create(ApiFcmServer.class);
     }
