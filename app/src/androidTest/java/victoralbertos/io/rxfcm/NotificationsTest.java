@@ -33,6 +33,8 @@ public class NotificationsTest {
     @Rule public ActivityTestRule<StartActivity> mActivityRule = new ActivityTestRule(StartActivity.class);
 
     @Test public void _1_Send_And_Receive_Notification_On_Foreground() {
+        waitTime(3000);
+
         onView(withId(R.id.bt_no_nested_fragment)).perform(click());
 
         //Send issue

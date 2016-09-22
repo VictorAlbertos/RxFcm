@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 public class RxFcmTest {
     @Mock protected Application applicationMock;
     @Mock protected GetFcmServerToken getFcmServerTokenMock;
-    @Mock protected Persistence persistenceMock;
     @Mock protected ActivitiesLifecycleCallbacks activitiesLifecycle;
     @Mock protected GetFcmReceiversUIForeground getFcmForegroundReceivers;
 
@@ -43,12 +42,14 @@ public class RxFcmTest {
 
     @Before public void setUp()  {
         MockitoAnnotations.initMocks(this);
-        RxFcm.Notifications.initForTesting(getFcmServerTokenMock, persistenceMock, activitiesLifecycle, getFcmForegroundReceivers);
+        RxFcm.Notifications.initForTesting(getFcmServerTokenMock, activitiesLifecycle,
+            getFcmForegroundReceivers, new FcmReceiverDataMock(), new FcmReceiverMockUIBackground(),
+            new FcmRefreshTokenReceiverMock());
         when(activitiesLifecycle.getApplication()).thenReturn(applicationMock);
     }
 
     @Test public void When_Call_Current_Token_Get_Token() {
-        when(persistenceMock.getToken(applicationMock)).thenReturn(MOCK_TOKEN);
+        when(getFcmServerTokenMock.retrieve()).thenReturn(MOCK_TOKEN);
 
         TestObserver<String> observer = new TestObserver<>();
         RxFcm.Notifications.currentToken().subscribe(observer);
@@ -60,9 +61,8 @@ public class RxFcmTest {
 
     @Test public void When_Call_On_Token_Refresh_Emit_Properly_Item() throws Exception {
         TestObserver<TokenUpdate> observer = FcmRefreshTokenReceiverMock.initSubscriber();
-        when(persistenceMock.getClassNameFcmRefreshTokenReceiver(applicationMock)).thenReturn(FcmRefreshTokenReceiverMock.class.getName());
 
-        when(getFcmServerTokenMock.retrieve(applicationMock)).thenReturn(MOCK_TOKEN);
+        when(getFcmServerTokenMock.retrieve()).thenReturn(MOCK_TOKEN);
         RxFcm.Notifications.onTokenRefreshed();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
@@ -71,15 +71,7 @@ public class RxFcmTest {
 
         observer = FcmRefreshTokenReceiverMock.initSubscriber();
         reset(getFcmServerTokenMock);
-        String errorMessage = "GCM not available";
-        when(getFcmServerTokenMock.retrieve(applicationMock)).thenThrow(new RuntimeException(errorMessage));        RxFcm.Notifications.onTokenRefreshed();
-        observer.awaitTerminalEvent();
-        observer.assertNoValues();
-        assertThat(observer.errors().get(0).getMessage(), is(errorMessage));
-
-        observer = FcmRefreshTokenReceiverMock.initSubscriber();
-        reset(getFcmServerTokenMock);
-        when(getFcmServerTokenMock.retrieve(applicationMock)).thenReturn(MOCK_TOKEN + 1);
+        when(getFcmServerTokenMock.retrieve()).thenReturn(MOCK_TOKEN + 1);
         RxFcm.Notifications.onTokenRefreshed();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
@@ -87,7 +79,6 @@ public class RxFcmTest {
         assertThat(token2.getToken(), is(MOCK_TOKEN + 1));
 
         reset(getFcmServerTokenMock);
-        when(persistenceMock.getClassNameFcmRefreshTokenReceiver(applicationMock)).thenReturn(null);
         try {
             RxFcm.Notifications.onTokenRefreshed();
             observer.awaitTerminalEvent();
@@ -102,11 +93,9 @@ public class RxFcmTest {
 
         //FcmReceiver
         FcmReceiverDataMock.initSubscriber();
-        when(persistenceMock.getClassNameFcmReceiver(applicationMock)).thenReturn(FcmReceiverDataMock.class.getName());
 
         //FcmReceiverUiBackground
         FcmReceiverMockUIBackground.initSubscriber();
-        when(persistenceMock.getClassNameFcmReceiverUIBackground(applicationMock)).thenReturn(FcmReceiverMockUIBackground.class.getName());
 
         Bundle payload = new Bundle();
         String from1 = "MockServer1";
@@ -146,7 +135,6 @@ public class RxFcmTest {
 
         //FcmReceiver
         FcmReceiverDataMock.initSubscriber();
-        when(persistenceMock.getClassNameFcmReceiver(applicationMock)).thenReturn(FcmReceiverDataMock.class.getName());
 
         //FcmReceiverUI
         GetFcmReceiversUIForeground.Wrapper wrapperFcmReceiverUIForeground = new GetFcmReceiversUIForeground.Wrapper(new FcmReceiverMockUIForeground(), false);
@@ -183,13 +171,5 @@ public class RxFcmTest {
         long onNotificationFinishTimeStamp = FcmReceiverDataMock.getOnNotificationFinishTimeStamp();
 
         assert onNotificationStartTimeStamp > onNotificationFinishTimeStamp;
-    }
-
-    @Test(expected=IllegalStateException.class) public void When_Call_Class_With_No_Public_Empty_Constructor_Get_Exception() {
-        RxFcm.Notifications.getInstanceClassByName(ClassWithNoPublicEmptyConstructor.class.getName());
-    }
-
-    @Test public void When_Call_Class_With_Public_Empty_Constructor_Not_Get_Exception() {
-        RxFcm.Notifications.getInstanceClassByName(ClassWithPublicEmptyConstructor.class.getName());
     }
 }

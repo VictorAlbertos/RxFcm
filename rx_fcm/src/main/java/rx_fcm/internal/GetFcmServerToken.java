@@ -16,12 +16,11 @@
 
 package rx_fcm.internal;
 
-import android.content.Context;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 class GetFcmServerToken {
 
-    String retrieve(Context context) throws Exception {
+    String retrieve() {
         return FirebaseInstanceId.getInstance().getToken();
     }
 }

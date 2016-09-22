@@ -13,9 +13,9 @@ public class RxSampleApp extends Application {
         super.onCreate();
 
         RxFcm.Notifications
-                .init(this, AppFcmReceiverData.class, AppFcmReceiverUIBackground.class);
+                .init(this, new AppFcmReceiverData(), new AppFcmReceiverUIBackground());
 
         RxFcm.Notifications
-            .onRefreshToken(RefreshTokenReceiver.class);
+            .onRefreshToken(new RefreshTokenReceiver());
     }
 }

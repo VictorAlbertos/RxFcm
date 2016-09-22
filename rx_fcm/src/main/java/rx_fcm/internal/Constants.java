@@ -17,11 +17,5 @@
 package rx_fcm.internal;
 
 interface Constants {
-    String KEY_SHARED_PREFERENCES_TOKEN = "key_shared_preferences_token";
-    String KEY_SHARED_PREFERENCES_CLASS_NAME_GCM_RECEIVER = "key_shared_class_name_gcm_receiver";
-    String KEY_SHARED_PREFERENCES_CLASS_NAME_GCM_RECEIVER_UI_BACKGROUND = "key_shared_preferences_class_name_gcm_receiver_ui_background";
-    String KEY_SHARED_PREFERENCES_CLASS_NAME_GCM_REFRESH_TOKEN = "key_shared_class_name_gcm_refresh_token";
-    String NOT_RECEIVER_FOR_FOREGROUND_UI_NOTIFICATIONS = "A notification on foreground has been received, but it has not been supplied a class which implements GcmReceiverUIForeground";
     String NOT_RECEIVER_FOR_REFRESH_TOKEN = "Token has been refresh but it has not been supplied a class which implements GcmRefreshTokenReceiver";
-    String ERROR_NOT_PUBLIC_EMPTY_CONSTRUCTOR_FOR_CLASS = "The class which you have supplied implementing $$$ can have only one public empty constructor";
 }
