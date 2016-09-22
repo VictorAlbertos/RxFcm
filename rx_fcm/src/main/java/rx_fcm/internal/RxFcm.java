@@ -17,12 +17,11 @@
 package rx_fcm.internal;
 
 import android.app.Application;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import java.util.concurrent.Callable;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
@@ -43,25 +42,31 @@ public enum RxFcm {
     private String rxFcmKeyTarget = "rx_fcm_key_target";
     private ActivitiesLifecycleCallbacks activitiesLifecycle;
     private GetFcmServerToken getFcmServerToken;
-    private Persistence persistence;
     private GetFcmReceiversUIForeground getFcmReceiversUIForeground;
+    private FcmReceiverData fcmReceiverData;
+    private FcmReceiverUIBackground fcmReceiverUIBackground;
+    private FcmRefreshTokenReceiver fcmRefreshTokenReceiver;
     private boolean testing;
     private Scheduler mainThreadScheduler;
 
     //VisibleForTesting
-    void initForTesting(GetFcmServerToken getFcmServerToken, Persistence persistence, ActivitiesLifecycleCallbacks activitiesLifecycle, GetFcmReceiversUIForeground getFcmReceiversUIForeground) {
+    void initForTesting(GetFcmServerToken getFcmServerToken,
+        ActivitiesLifecycleCallbacks activitiesLifecycle, GetFcmReceiversUIForeground getFcmReceiversUIForeground,
+        FcmReceiverData fcmReceiverData, FcmReceiverUIBackground fcmReceiverUIBackground,
+        FcmRefreshTokenReceiver fcmRefreshTokenReceiver) {
         this.testing = true;
         this.getFcmServerToken = getFcmServerToken;
-        this.persistence = persistence;
         this.mainThreadScheduler = Schedulers.io();
         this.activitiesLifecycle = activitiesLifecycle;
         this.getFcmReceiversUIForeground = getFcmReceiversUIForeground;
+        this.fcmReceiverData = fcmReceiverData;
+        this.fcmReceiverUIBackground = fcmReceiverUIBackground;
+        this.fcmRefreshTokenReceiver = fcmRefreshTokenReceiver;
     }
 
     void init(Application application) {
         if (testing || activitiesLifecycle != null) return;
         this.getFcmServerToken = new GetFcmServerToken();
-        this.persistence = new Persistence();
         this.getFcmReceiversUIForeground = new GetFcmReceiversUIForeground();
         this.activitiesLifecycle = new ActivitiesLifecycleCallbacks(application);
         this.mainThreadScheduler = AndroidSchedulers.mainThread();
@@ -70,101 +75,57 @@ public enum RxFcm {
     /**
      *
      * @param application The Android Application instance.
-     * @param gcmReceiverDataClass A class which implements {@link FcmReceiverData}
-     * @param gcmReceiverUIBackgroundClass A class which implements {@link FcmReceiverUIBackground}
+     * @param fcmReceiverData A class which implements {@link FcmReceiverData}
+     * @param fcmReceiverUIBackground A class which implements {@link FcmReceiverUIBackground}
      */
-    public <T extends FcmReceiverData, U extends FcmReceiverUIBackground> void init(final Application application,
-                                                                                    final Class<T> gcmReceiverDataClass,
-                                                                                    final Class<U> gcmReceiverUIBackgroundClass) {
+    public void init(Application application,
+        FcmReceiverData fcmReceiverData, FcmReceiverUIBackground fcmReceiverUIBackground) {
+        this.fcmReceiverData = fcmReceiverData;
+        this.fcmReceiverUIBackground = fcmReceiverUIBackground;
         init(application);
-
-        Context context = activitiesLifecycle.getApplication();
-        persistence.saveClassNameFcmReceiverAndFcmReceiverUIBackground(gcmReceiverDataClass.getName(),
-            gcmReceiverUIBackgroundClass.getName(), context);
     }
 
-  /**
-   *
-   * @param application The Android Application instance.
-   * @param gcmReceiverDataClass A class which implements {@link FcmReceiverData}
-   * @param gcmReceiverUIBackgroundClass A class which implements {@link FcmReceiverUIBackground}
-   * @param rxFcmKeyTarget The name of the json node which contains the name of the target screen
-   */
-    public <T extends FcmReceiverData, U extends FcmReceiverUIBackground> void init(final Application application,
-                                                                                    final Class<T> gcmReceiverDataClass,
-                                                                                    final Class<U> gcmReceiverUIBackgroundClass,
-                                                                                    final String rxFcmKeyTarget) {
-        init(application);
-
-        Context context = activitiesLifecycle.getApplication();
-        persistence.saveClassNameFcmReceiverAndFcmReceiverUIBackground(gcmReceiverDataClass.getName(),
-            gcmReceiverUIBackgroundClass.getName(), context);
-
+    /**
+     *
+     * @param application The Android Application instance.
+     * @param fcmReceiverData A class which implements {@link FcmReceiverData}
+     * @param fcmReceiverUIBackground A class which implements {@link FcmReceiverUIBackground}
+     * @param rxFcmKeyTarget The name of the json node which contains the name of the target screen
+     */
+    public void init(Application application,
+        FcmReceiverData fcmReceiverData, FcmReceiverUIBackground fcmReceiverUIBackground, String rxFcmKeyTarget) {
+        this.fcmReceiverData = fcmReceiverData;
+        this.fcmReceiverUIBackground = fcmReceiverUIBackground;
         this.rxFcmKeyTarget = rxFcmKeyTarget;
+        init(application);
     }
 
     /**
      * @return Current token associated with the device on FCM serve.
      */
     public Observable<String> currentToken() {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override public void call(Subscriber<? super String> subscriber) {
-                Context context = activitiesLifecycle.getApplication();
-                String token = persistence.getToken(context);
-
-                if (token != null) {
-                    subscriber.onNext(token);
-                } else {
-                    try {
-                        token = getFcmServerToken.retrieve(activitiesLifecycle.getApplication());
-                        persistence.saveToken(token, context);
-                        subscriber.onNext(token);
-                    } catch (Exception e) {
-                        subscriber.onError(e);
-                    }
-                }
-
-                subscriber.onCompleted();
+        return Observable.fromCallable(new Callable<String>() {
+            @Override public String call() throws Exception {
+                return getFcmServerToken.retrieve();
             }
         });
     }
 
     /**
-     * @param aClass The class which implements {@link FcmRefreshTokenReceiver}.
+     * @param fcmRefreshTokenReceiver A class which implements {@link FcmRefreshTokenReceiver}.
      */
-    public <T extends FcmRefreshTokenReceiver> void onRefreshToken(Class<T> aClass) {
-        persistence.saveClassNameGcmRefreshTokenReceiver(aClass.getName(), activitiesLifecycle.getApplication());
+    public void onRefreshToken(FcmRefreshTokenReceiver fcmRefreshTokenReceiver) {
+        this.fcmRefreshTokenReceiver = fcmRefreshTokenReceiver;
     }
 
     void onTokenRefreshed() {
-        String newToken;
-        Observable oExceptionGcmServer;
-        try {
-            newToken = getFcmServerToken.retrieve(activitiesLifecycle.getApplication());
-            persistence.saveToken(newToken, activitiesLifecycle.getApplication());
-            oExceptionGcmServer = null;
-        } catch (final Exception exception) {
-            newToken = null;
-            oExceptionGcmServer = Observable.create(new Observable.OnSubscribe<Object>() {
-                @Override public void call(Subscriber<? super Object> subscriber) {
-                    subscriber.onError(new RuntimeException(exception.getMessage()));
-                }
-            });
-        }
-
-        String className = persistence.getClassNameFcmRefreshTokenReceiver(activitiesLifecycle.getApplication());
-        if (className == null) {
+        if (fcmRefreshTokenReceiver == null) {
             Log.w(getAppName(), Constants.NOT_RECEIVER_FOR_REFRESH_TOKEN);
             return;
         }
 
-        FcmRefreshTokenReceiver tokenReceiver = getInstanceClassByName(className);
-        if (newToken != null) {
-            TokenUpdate tokenUpdate = new TokenUpdate(newToken, activitiesLifecycle.getApplication());
-            tokenReceiver.onTokenReceive(Observable.just(tokenUpdate));
-        } else {
-            tokenReceiver.onTokenReceive(oExceptionGcmServer);
-        }
+        TokenUpdate tokenUpdate = new TokenUpdate(getFcmServerToken.retrieve(), activitiesLifecycle.getApplication());
+        fcmRefreshTokenReceiver.onTokenReceive(Observable.just(tokenUpdate));
     }
 
     void onNotificationReceived(String from, Bundle payload) {
@@ -173,43 +134,30 @@ public enum RxFcm {
 
         Observable<Message> oMessage = Observable.just(new Message(from, payload, target, application));
 
-        String className = persistence.getClassNameFcmReceiver(activitiesLifecycle.getApplication());
-        FcmReceiverData fcmReceiverData = getInstanceClassByName(className);
-
         fcmReceiverData.onNotification(oMessage)
-                .doOnNext(new Action1<Message>() {
-                    @Override public void call(Message message) {
-                        if (activitiesLifecycle.isAppOnBackground()) {
-                            notifyGcmReceiverBackgroundMessage(message);
-                        } else {
-                            notifyGcmReceiverForegroundMessage(message);
-                        }
+            .doOnNext(new Action1<Message>() {
+                @Override public void call(Message message) {
+                    if (activitiesLifecycle.isAppOnBackground()) {
+                        notifyGcmReceiverBackgroundMessage(message);
+                    } else {
+                        notifyGcmReceiverForegroundMessage(message);
                     }
-                })
-                .subscribe(Actions.empty(), new Action1<Throwable>() {
-                    @Override public void call(Throwable throwable) {
-                        String message = "Error thrown from GcmReceiverData subscription. Cause exception: " + throwable.getMessage();
-                        Log.e("RxGcm", message);
-                    }
-                });
+                }
+            })
+            .subscribe(Actions.empty(), new Action1<Throwable>() {
+                @Override public void call(Throwable throwable) {
+                    String message = "Error thrown from GcmReceiverData subscription. Cause exception: " + throwable.getMessage();
+                    Log.e("RxGcm", message);
+                }
+            });
     }
 
     private void notifyGcmReceiverBackgroundMessage(Message message) {
-        String className = persistence.getClassNameFcmReceiverUIBackground(activitiesLifecycle.getApplication());
-        final FcmReceiverUIBackground fcmReceiverUIBackground = getInstanceClassByName(className);
-
         fcmReceiverUIBackground
             .onNotification(Observable.just(message));
     }
 
     private void notifyGcmReceiverForegroundMessage(Message message) {
-        String className = persistence.getClassNameFcmReceiver(activitiesLifecycle.getApplication());
-
-        if (className == null) {
-            Log.w(getAppName(), Constants.NOT_RECEIVER_FOR_FOREGROUND_UI_NOTIFICATIONS);
-            return;
-        }
-
         final GetFcmReceiversUIForeground.Wrapper wrapperGcmReceiverUIForeground = getFcmReceiversUIForeground
             .retrieve(message.target(), activitiesLifecycle.getLiveActivityOrNull());
         if (wrapperGcmReceiverUIForeground == null) return;
@@ -223,25 +171,6 @@ public enum RxFcm {
         } else {
             wrapperGcmReceiverUIForeground.fcmReceiverUIForeground()
                 .onMismatchTargetNotification(oNotification);
-        }
-    }
-
-    <T> Class<T> getClassByName(String className) {
-        try {
-            return (Class<T>) Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    <T> T getInstanceClassByName(String className) {
-        try {
-            T instance = (T) getClassByName(className).newInstance();
-            return instance;
-        } catch (Exception e) {
-            String error = Constants.ERROR_NOT_PUBLIC_EMPTY_CONSTRUCTOR_FOR_CLASS;
-            error = error.replace("$$$", className);
-            throw new IllegalStateException(error);
         }
     }
 
