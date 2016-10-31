@@ -15,9 +15,9 @@ Add RxFcm dependency and Google Services plugin to project level build.gradle.
 apply plugin: 'com.google.gms.google-services'
 
 dependencies {
-    compile 'com.github.VictorAlbertos:RxFcm:0.0.9'
-    compile 'com.google.firebase:firebase-core:9.4.0'
-    compile 'io.reactivex:rxjava:1.1.10'
+    compile 'com.github.VictorAlbertos:RxFcm:0.1.0'
+    compile 'com.google.firebase:firebase-core:9.6.0'
+    compile 'io.reactivex:rxjava:1.2.1'
 }
 ```
 
