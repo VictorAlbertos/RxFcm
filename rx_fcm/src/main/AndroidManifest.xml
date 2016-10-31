@@ -3,9 +3,7 @@
 
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="16" />
 
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name">
+    <application>
 
         <service
             android:name="rx_fcm.internal.AppFcmListenerService">
