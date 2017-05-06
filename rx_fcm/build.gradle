@@ -24,8 +24,6 @@ android {
 }
 
 dependencies {
-    compile "com.google.firebase:firebase-messaging:9.6.0"
-
     compile 'io.reactivex:rxjava:1.2.1'
     compile 'io.reactivex:rxandroid:1.2.1'
 
