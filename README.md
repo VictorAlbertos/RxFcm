@@ -204,12 +204,12 @@ public class RxSampleApp extends Application {
 To mock a call to RxFcm with a bundle which will be process as a real Fcm notification use:
 
 ```java
-    RxGcmMock.Notifications.newNotification(bundle); 
+    RxFcmMock.Notifications.newNotification(bundle); 
 ```
  
 To mock a call to RxFcm requesting it to update the token device:
 ```java
-    RxGcmMock.Notifications.updateToken(); 
+    RxFcmMock.Notifications.updateToken(); 
 ```
 
 ## Examples
